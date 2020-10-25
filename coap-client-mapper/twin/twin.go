@@ -19,7 +19,7 @@ import (
 	"github.com/brukt/experiments/coap-client-mapper/device"
 )
 
-var MqttIP string = "127.0.0.1" // Replace this IP with 172.16.4.147, 172.16.2.65
+var MqttIP string = "172.16.4.147" // Replace this IP with 172.16.4.147, 172.16.2.65
 var DeviceID string = "coap-time-client"
 
 func init() {
@@ -30,20 +30,17 @@ func init() {
 func Start(stop chan bool, wg *sync.WaitGroup) {
 	terminate := false
 	var actualPeriod time.Duration = 1 // the period in unit of second
-	var doNothing = false              // if the period is set to zero don't contact the coap server
 
 	// Listen for new updates from the cloud about Mapperconfig and heater state
 	// update the state of MapperConfig and Heater accordingly
 	// check cloud configurations and configure yours
-	log.Printf("Starting Ip Address: %s, Period: %d, Heater: %s", device.MapperConfig.Address, device.MapperConfig.Period, device.ResourceState.HeaterStatus)
+	log.Printf("Starting Ip Address: %s, Period: %d", device.MapperConfig.Address, device.MapperConfig.Period)
 
 	for {
 		if device.MapperConfig.Period == 0 {
 			actualPeriod = 1
-			doNothing = true
 		} else if device.MapperConfig.Period > 0 {
 			actualPeriod = time.Duration(device.MapperConfig.Period)
-			doNothing = false
 		}
 
 		// check cloud configurations and configure yours
@@ -52,16 +49,20 @@ func Start(stop chan bool, wg *sync.WaitGroup) {
 			log.Println(err)
 		}
 
-		if !doNothing {
-			// Update the Resource copy inside the edgenode and also in k8s cloud indirectly
-			updateMessage := helper.CreateActualUpdateMessage(device.ResourceState, device.MapperConfig)
-			log.Printf("Syncing to edge")
-			if err := helper.UpdateTwinValue(DeviceID, updateMessage); err != nil {
-				log.Println(err)
-			}
-			log.Printf("Syncing to cloud")
-			helper.SyncToCloud(DeviceID, updateMessage)
+		var err error
+		device.ResourceState.Temperature, err = device.GetResourceState()
+		if err != nil {
+			log.Println("error reading time")
 		}
+		log.Println("TIme is: ", device.ResourceState.Temperature)
+		// Update the Resource copy inside the edgenode and also in k8s cloud indirectly
+		updateMessage := helper.CreateActualUpdateMessage(device.ResourceState, device.MapperConfig)
+		log.Printf("Syncing to edge")
+		if err := helper.UpdateTwinValue(DeviceID, updateMessage); err != nil {
+			log.Println(err)
+		}
+		log.Printf("Syncing to cloud")
+		helper.SyncToCloud(DeviceID, updateMessage)
 
 		select {
 		case <-stop:

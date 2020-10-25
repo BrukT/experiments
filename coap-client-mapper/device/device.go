@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"context"
 	"io"
+	"log"
 	"sync"
 	"time"
 
@@ -42,7 +43,9 @@ func GetResourceState() (string, error) {
 
 	buffer := new(bytes.Buffer)
 
-	_, err = io.Copy(buffer, resp.Body())
+	if _, err = io.Copy(buffer, resp.Body()); err != nil {
+		log.Println(err)
+	}
 	return buffer.String(), nil
 }
 

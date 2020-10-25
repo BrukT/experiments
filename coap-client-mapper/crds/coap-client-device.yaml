@@ -31,4 +31,4 @@ status:
           desired:
             metadata:
               type: int
-            value: '4'
+            value: '1'
