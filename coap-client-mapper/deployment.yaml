@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: coap-time-client
+    labels:
+        app: coap-time-client
+spec:
+    replicas: 1
+    selector:
+        matchLabels:
+            app: coap-time-client
+    template:
+        metadata:
+            labels:
+                app: coap-time-client
+        spec:
+            hostNetwork: true
+            nodeSelector:
+                place: edge
+            containers:
+            - name: coap-time-client
+              image: bruk/coap-time-client
+              imagePullPolicy: Always
+              securityContext:
+                privileged: true

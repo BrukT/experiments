@@ -1,0 +1,25 @@
+apiVersion: devices.kubeedge.io/v1alpha2
+kind: DeviceModel
+metadata:
+    name: coap-time-client-model
+    namespace: default 
+spec:
+    properties:
+        - name: temperature
+          description: ambient temperature recorded from the sensor
+          type:
+            string:
+              accessMode: ReadOnly
+              defaultValue: ''
+        - name: address
+          description: the ip address of the coap-server
+          type:
+            string:
+              accessMode: ReadWrite
+              defaultValue: ''
+        - name: period
+          description: the period between two get requests to check the server status
+          type:
+            int:
+              accessMode: ReadWrite
+              defaultValue: 4

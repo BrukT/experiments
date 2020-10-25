@@ -1,0 +1,34 @@
+apiVersion: devices.kubeedge.io/v1alpha2
+kind: Device
+metadata:
+    name: coap-time-client
+    labels:
+        description: 'coap-time-client'
+        manufacturer: 'unipi'
+spec:
+    deviceModelRef:
+        name: coap-time-client-model 
+    nodeSelector:
+        nodeSelectorTerms:
+            - matchExpressions:
+                - key: ''
+                  operators: In
+                  values:
+                    - kubedge-edge-1
+status:
+    twins:
+        - propertyName: temperature
+          reported:
+            metadata:
+                type: string
+            value: '' #keep this field as it is to let the edge node write here
+        - propertyName: address
+          desired:
+            metadata:
+                type: string
+            value: "172.16.2.176"
+        - propertyName: period
+          desired:
+            metadata:
+              type: int
+            value: '4'
