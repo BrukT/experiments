@@ -20,6 +20,6 @@ spec:
             containers:
             - name: coap-time-client
               image: bruk/coap-time-client
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               securityContext:
                 privileged: true

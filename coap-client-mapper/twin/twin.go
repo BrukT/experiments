@@ -56,13 +56,15 @@ func Start(stop chan bool, wg *sync.WaitGroup) {
 		}
 		log.Println("TIme is: ", device.ResourceState.Temperature)
 		// Update the Resource copy inside the edgenode and also in k8s cloud indirectly
-		updateMessage := helper.CreateActualUpdateMessage(device.ResourceState, device.MapperConfig)
-		log.Printf("Syncing to edge")
-		if err := helper.UpdateTwinValue(DeviceID, updateMessage); err != nil {
-			log.Println(err)
+		if device.ResourceState.Temperature != "" {
+			updateMessage := helper.CreateActualUpdateMessage(device.ResourceState, device.MapperConfig)
+			log.Printf("Syncing to edge")
+			if err := helper.UpdateTwinValue(DeviceID, updateMessage); err != nil {
+				log.Println(err)
+			}
+			log.Printf("Syncing to cloud")
+			helper.SyncToCloud(DeviceID, updateMessage)
 		}
-		log.Printf("Syncing to cloud")
-		helper.SyncToCloud(DeviceID, updateMessage)
 
 		select {
 		case <-stop:

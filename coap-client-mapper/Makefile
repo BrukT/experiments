@@ -1,14 +1,14 @@
 .PHONY: all clean
 
-all: coap-time-client
+all: coap-time-mapper
 	docker build . -t bruk/coap-time-client
 	docker push bruk/coap-time-client
 
 # for testing build only the binary
-test: coap-client-mapper
+test: coap-time-mapper
 	scp coap-client-mapper ubuntu@kubeedge_edge-1:/home/ubuntu
 
-coap-client-mapper: main.go clean
+coap-time-mapper: main.go clean
 	go build -o coap-client-mapper main.go
 	
 clean:
